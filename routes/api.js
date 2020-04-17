@@ -27,8 +27,8 @@ module.exports = function (app) {
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       Book.find().exec((err, booksfound) => {
-        console.log(booksfound)
-        res.json(BookHelper.getSuccessGetResponce(booksfound))
+        //console.log(booksfound)
+        res.json(BookHelper.getSuccessGetResponse(booksfound))
       })
     })
 
@@ -38,22 +38,19 @@ module.exports = function (app) {
         Book.create([{
           title: title
         }], (err, bookCreated) => {
-          if (err) {
-            console.log(err.stack)
-          }
-          if (bookCreated === undefined) {
-            res.json("book already exists");
+          if (err || bookCreated === undefined) {
+            //sconsole.log(err.stack)
+            res.json("book was previously added");
           } else {
-            console.log("book created:", bookCreated);
-            res.json(BookHelper.getSuccessGetResponce(bookCreated))
+            //console.log("book created:", bookCreated);
+            res.json(BookHelper.getSuccessGetResponse(bookCreated)[0])
           }
         })
-      } else res.json("please provide name");
+      } else res.json("please provide title");
       //response will contain new book object including atleast _id and title
     })
-    .delete(function(req,res){
-      Book.remove((err,books)=>{
-        console.log(books)
+    .delete(function (req, res) {
+      Book.deleteMany({}, (err, books) => {
         res.json("complete delete successful")
       })
     });
@@ -62,10 +59,23 @@ module.exports = function (app) {
     .get(function (req, res) {
       var bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-      if(bookId === undefined)res.json("unknown book")
-      else{
-        Book.findOne({_id:bookid},(err,bookFound)=>{
-          res.json(bookFound)
+      if (bookid === undefined) res.json("please provide an id")
+      else {
+        Book.findOne({
+          _id: bookid
+        }, (err, booksFound) => {
+          //console.log(booksFound)
+          if (booksFound === undefined) {
+            res.json("no book exists")
+          } else {
+            console.log(booksFound)
+            Comment.find({bookId: booksfounds._id}, (err, bookCommets) => {
+              if (bookCommets === null) res.json([])
+              else {
+                res.json(bookCommets)
+              }
+            })
+          }
         })
       }
     })
@@ -73,19 +83,24 @@ module.exports = function (app) {
     .post(function (req, res) {
       var bookid = req.params.id;
       var comment = req.body.comment;
-      if(bookid !== undefined && comment !== undefined){
-        Book.exists({_id:bookid},(err,book_exists)=>{
-          if(book_exists===true){
-            Comment.create({bookId:bookid,text:comment},(err,comment)=>{
-              if(comment===null){res.json("comment was not created")}
-              else {
+      if (bookid !== undefined && comment !== undefined) {
+        Book.exists({
+          _id: bookid
+        }, (err, book_exists) => {
+          if (book_exists === true) {
+            Comment.create({
+              bookId: bookid,
+              text: comment
+            }, (err, comment) => {
+              if (comment === null) {
+                res.json("comment was not created")
+              } else {
                 res.json(comment)
               }
             })
           }
         })
-      }
-      else {
+      } else {
         res.json([])
       }
       //json res format same as .get
@@ -94,14 +109,14 @@ module.exports = function (app) {
     .delete(function (req, res) {
       var bookid = req.params.id;
       //if successful response will be 'delete successful'
-      console.log(req.body, req.params)
+      //console.log(req.body, req.params)
       if (req.params.id === undefined) res.json("please provide an idea")
       else {
         Book.deleteOne({
           _id: req.params.id
         }, function (err, booksRemoved) {
-          console.log(booksRemoved)
-          if (booksRemoved===undefined || (booksRemoved!==null && booksRemoved.deletedCount===0)) res.json("book does not exist")
+          //console.log(booksRemoved)
+          if (booksRemoved === undefined || (booksRemoved !== null && booksRemoved.deletedCount === 0)) res.json("book does not exist")
           else res.json("delete successful")
         });
       }

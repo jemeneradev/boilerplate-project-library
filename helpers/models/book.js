@@ -1,10 +1,11 @@
 
-const getSuccessGetResponce = (books) => {
+const getSuccessGetResponse = (books) => {
     let bookinfo = [];
     books.forEach(element => {
-        bookinfo.push({_id:element._id,title:element.title})
+        delete element.__v
+        //bookinfo.push({_id:element._id,title:element.title})
     });
-    return bookinfo;
+    return books;
 }
 
-module.exports = {getSuccessGetResponce:getSuccessGetResponce}
+module.exports = {getSuccessGetResponse:getSuccessGetResponse}

@@ -6,7 +6,7 @@ module.exports = mongoose.model('Comment', {
         required: true,
         unique: true
     },
-    book_id:{
+    bookId:{
         type: mongoose.Types.ObjectId,
         require:true
     }
