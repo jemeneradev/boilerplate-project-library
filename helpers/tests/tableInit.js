@@ -33,7 +33,7 @@ const addToComments = (server, dburl,items,msg="db modified", next) => {
         chai.request(server)
             .post(dburl)
             .send({
-                comments: element
+                comment: element
             })
             .end((err, res) => {
                 limit++;

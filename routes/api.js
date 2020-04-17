@@ -65,17 +65,23 @@ module.exports = function (app) {
           _id: bookid
         }, (err, booksFound) => {
           //console.log(booksFound)
-          if (booksFound === undefined) {
+          
+          if(booksFound===undefined){
             res.json("no book exists")
-          } else {
-            console.log(booksFound)
-            Comment.find({bookId: booksfounds._id}, (err, bookCommets) => {
-              if (bookCommets === null) res.json([])
-              else {
-                res.json(bookCommets)
-              }
+          }
+          else {
+            Comment.find({bookId: booksFound._id}, (err, bookCommets) => {
+              let results = Object.assign({},booksFound.toObject())
+              results.comments = bookCommets 
+              res.json(results)
             })
           }
+          /*if (booksFound === undefined) {
+            res.json("no book exists")
+          } else {
+            //console.log(booksFound)
+            
+          }*/
         })
       }
     })
